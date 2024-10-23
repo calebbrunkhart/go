@@ -44,37 +44,37 @@ public class App {
         return false;
     }
 
-    static boolean isAlive(int x, int y, String color) {
+    static boolean isAlive(int x, int y) {
         beenChecked[x][y] = true;
 
         if(hasLiberties(x, y) == true){
             return true;
         }
 
-        if(x+1 <= 8 && goBoard[x+1][y].equals(color)) {
+        if(x+1 <= 8 && goBoard[x+1][y].equals(goBoard[x][y])) {
             if(!beenChecked[x+1][y]) {
-                if(isAlive(x+1, y, color)){
+                if(isAlive(x+1, y)){
                     return true;
                 }
             }
         }
-        if(x-1 >= 0 && goBoard[x-1][y].equals(color)) {
+        if(x-1 >= 0 && goBoard[x-1][y].equals(goBoard[x][y])) {
             if(!beenChecked[x-1][y]) {
-                if(isAlive(x-1, y, color)){
+                if(isAlive(x-1, y)){
                     return true;
                 }
             }
         }
-        if(y+1 <= 8 && goBoard[x][y+1].equals(color)) {
+        if(y+1 <= 8 && goBoard[x][y+1].equals(goBoard[x][y])) {
             if(!beenChecked[x][y+1]) {
-                if(isAlive(x, y+1, color)){
+                if(isAlive(x, y+1)){
                     return true;
                 }
             }
         }
-        if(y-1 >= 0 && goBoard[x][y-1].equals(color)) {
+        if(y-1 >= 0 && goBoard[x][y-1].equals(goBoard[x][y])) {
             if(!beenChecked[x][y-1]) {
-                if(isAlive(x, y-1, color)){
+                if(isAlive(x, y-1)){
                     return true;
                 }
             }
@@ -97,6 +97,8 @@ public class App {
         while(!quit){      
             System.out.println();
 
+            boolean[][] dead = new boolean [9][9];
+
             while (true){
                 System.out.println();
                 System.out.println("Please enter the x coordinate for your piece (1-9): ");
@@ -108,10 +110,8 @@ public class App {
                     System.out.println("Invalid move.");
                 } else if (goBoard[moveY][moveX] == " x" || goBoard[moveY][moveX] == " o"){
                     System.out.println("Invalid move.");
-                }
-                else {
-                    break;
-                }
+                } 
+                else break;
             }
 
             if(flipper){
@@ -120,15 +120,38 @@ public class App {
                 goBoard[moveY][moveX] = " o";
             }
 
-            getBoard(goBoard);
-            flipper = !flipper;
+            for (int i = 0; i < goBoard.length; i++) {
+                for (int j = 0; j < goBoard[i].length; j++) {
+                    beenChecked = new boolean[9][9];
+                    if (i == moveY && j == moveX) {
+                        continue;
+                    }
+                    else if (!isAlive(i, j)) {
+                        dead[i][j] = true;
+                    }
+                }
+            }
 
+            for (int i=0; i < goBoard.length; i++) {
+                for (int j = 0; j < goBoard[i].length; j++){
+                    if (dead[i][j]) {
+                        goBoard[i][j] = null;
+                    }
+                }
+            }
+
+            if (!isAlive(moveY, moveX)) {
+                goBoard[moveY][moveX] = null;
+                System.out.println("Invalid move. Piece would be immediately captured.");
+            }
+            else{
+                getBoard(goBoard);
+                flipper = !flipper;
+            }
         }
-
         scn.close();
     }
 
 }
 
 
-//DONT FORGET TO CLEAR BEEN CHECKED
