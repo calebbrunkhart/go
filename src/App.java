@@ -1,20 +1,9 @@
 import java.util.Scanner;
-import java.util.Set;
-import java.util.HashSet;
+
 
 public class App {
 
-    static String[][] goBoard = {
-        {null, null, null, " x", " o", null, null, null, null},
-        {null, null, null, " x", null, null, null, null, null},
-        {null, null, null, " x", " o", " o", " o", " o", " o"},
-        {null, null, null, " x", " o", null, null, null, null},
-        {null, null, null, " x", " o", null, null, null, null},
-        {null, null, null, " x", " o", null, null, null, null},
-        {null, null, null, " x", " o", null, null, null, null},
-        {null, null, null, " x", " o", null, null, null, null},
-        {null, null, null, " x", " o", null, null, null, null}
-        };
+    static String[][] goBoard = new String[9][9]; 
 
     static boolean[][] territory = new boolean[9][9];
     static boolean[][] beenChecked = new boolean[9][9];
@@ -85,35 +74,6 @@ public class App {
 
     }
 
-    static int checkTerritory(int x, int y, Set<String> borderingColors) {
-        if (x < 0 || x > 8 || y < 0 || y > 8 || goBoard[x][y] != null || territory[x][y]) {
-            return 0;
-        }
-
-        territory[x][y] = true;
-        int areaCount = 1; // Initialize territory count
-
-        // Check adjacent spaces and expand the territory
-        if (x + 1 <= 8) {
-            if (goBoard[x + 1][y] != null) borderingColors.add(goBoard[x + 1][y]);
-            else areaCount += checkTerritory(x + 1, y, borderingColors);
-        }
-        if (x - 1 >= 0) {
-            if (goBoard[x - 1][y] != null) borderingColors.add(goBoard[x - 1][y]);
-            else areaCount += checkTerritory(x - 1, y, borderingColors);
-        }
-        if (y + 1 <= 8) {
-            if (goBoard[x][y + 1] != null) borderingColors.add(goBoard[x][y + 1]);
-            else areaCount += checkTerritory(x, y + 1, borderingColors);
-        }
-        if (y - 1 >= 0) {
-            if (goBoard[x][y - 1] != null) borderingColors.add(goBoard[x][y - 1]);
-            else areaCount += checkTerritory(x, y - 1, borderingColors);
-        }
-
-        return areaCount;
-    }
-
     public static void main(String[] args) throws Exception {
 
         Scanner scn = new Scanner(System.in);
@@ -124,11 +84,6 @@ public class App {
     //Values to track whether the game has ended. If both players pass in succession, the game ends.
         String pass; 
         int pass_count = 0;
-
-    //White "O" starts with .5 points to ensure there is a winner. Black has an advantage of going first, so white gets the half point. This is called Komi.
-        int playerXscore = 0;
-        double playerOscore = 0.5;
-
         getBoard(goBoard);
 
         while(!quit){      
@@ -195,12 +150,6 @@ public class App {
                 for (int j = 0; j < goBoard[i].length; j++){
                     if (dead[i][j]) {
                         goBoard[i][j] = null;
-                        if (flipper) {
-                            playerXscore++;
-                        }
-                        else {
-                            playerOscore++;
-                        }
                     }
                 }
             }
@@ -214,28 +163,6 @@ public class App {
                 flipper = !flipper;
             }
         }
-
-        territory = new boolean[9][9];
-        for (int i = 0; i < goBoard.length; i++) {
-            for (int j = 0; j < goBoard[i].length; j++) {
-                if (goBoard[i][j] == null && !territory[i][j]) {
-                    Set<String> borderingColors = new HashSet<>();
-                    int areaSize = checkTerritory(i, j, borderingColors);
-                    if (borderingColors.size() == 1) {
-                        String color = borderingColors.iterator().next();
-                        if (color.equals(" x")) {
-                            playerXscore += areaSize;
-                        }
-                        else {
-                            playerOscore += areaSize;
-                        }
-                    }
-                }
-            }
-        } 
-
-        System.out.println("Player 1's score: " + playerXscore);
-        System.out.println("Player 2's score: " + playerOscore);
         scn.close();
     }
 
